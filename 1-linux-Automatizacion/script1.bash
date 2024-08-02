@@ -152,7 +152,7 @@ else
 
 echo "===== MOVIENDO ARCHIVOS A CARPETA APACHE /var/www/html/ ======"
 cp -r The-DevOps-Journey-101/CLASE-02/lamp-app-ecommerce/* /var/www/html/
-
+sudo sed -i 's/172.20.1.101/localhost/g' /var/www/html/index.php
 
 echo "===== TESTEAR EXISTENCIA DEL CODIGO ======"
 
@@ -166,6 +166,9 @@ echo "===== AJUSTAR CONFIG PHP ======"
 ################### REINICIANDO APACHE ###########################
 echo "===== REINICIANDO APACHE ======"
 sudo service apache2 reload
+#################################################################
+
+#################################################################
 #################################################################
 
 
