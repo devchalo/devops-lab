@@ -12,7 +12,7 @@ LYELLOW='\033[1;33m'
 #####################################
 
 ############### VERIFICAMOS USUARIO ROOT  ########################
-if[ "${USERID}" -ne 0 ];
+if "${USERID}" -ne 0 ;
 then
     echo "DEBES SER ROOT PARA EJECUTAR"
     exit
@@ -87,9 +87,10 @@ fi
 echo ===== INICIANDO APACHE ======
 sudo systemctl start apache2
 echo ===== HABILITANDO APACHE ======
-sudo systemctl enable apache
+sudo systemctl enable apache2
 echo ===== STATUS APACHE ======
-sudo systemctl status apache2
+sudo systemctl status apache2 | grep Active
+
 
 #PHP
 echo ===== INICIANDO PHP ======
@@ -102,11 +103,11 @@ sudo systemctl start mariadb
 echo ===== HABILITANDO MARIA DB ======
 sudo systemctl enable mariadb
 echo ===== STATUS MARIA DB ======
-sudo systemctl status mariadb
+sudo systemctl status mariadb | grep Active
 
 #GIT
 echo ===== STATUS GIT ======
-sudo git -version
+sudo git --version
 
 
 #CURL
@@ -176,4 +177,3 @@ sudo service apache2 reload
 echo "===== TESTEAR CONEXION ======"
 curl http://localhost
 ##################################################################
-
