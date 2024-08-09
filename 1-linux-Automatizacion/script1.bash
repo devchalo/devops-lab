@@ -3,26 +3,26 @@
 ############ VARIABLES ###############
 REPO="The-DevOps-Journey-101"
 USERID=$(id -u)
-#COLORES
-LRED='\033[1;31m'
-LGREEN='\033[1;32m'
-NC='\033[0m'
-LBLUE='\033[0;34m'
-LYELLOW='\033[1;33m'
+#COLORES NO FUNCIONAN
+#LRED='\033[1;31m'
+#LGREEN='\033[1;32m'
+#NC='\033[0m'
+#LBLUE='\033[0;34m'
+#LYELLOW='\033[1;33m'
 #####################################
 
 ############### VERIFICAMOS USUARIO ROOT  ########################
-if "${USERID}" -ne 0 ;
+if [ "${USERID}" -ne 0 ];
 then
-    echo "DEBES SER ROOT PARA EJECUTAR"
+    echo -e "\DEBES SER ROOT PARA EJECUTAR"
     exit
 fi    
 ##################################################################
 
 
 ############### ACTUALIZAMOS DEPENDENCIAS ########################
-echo "===== ACTUALIZANDO PAQUETEDE DEPENDECIAS ======"
 apt-get update
+echo "===== EL SERVIDOR ESTA ACTUALIZADO ======"
 ##################################################################
 
 
@@ -62,7 +62,7 @@ fi
 #GIT
 if dpkg -l |grep -q git ;
 then
-  echo "===== YA ESTA INSTALADO MYSQL MARIA DB ======"
+  echo "===== YA ESTA INSTALADO GIT ======"
 else
     echo "===== INSTALANDO GIT ======"
     sudo apt install git -y
@@ -72,7 +72,7 @@ fi
 #CURL
 if dpkg -l |grep -q curl ;
 then
-  echo "===== YA ESTA INSTALADO MYSQL MARIA DB ======"
+  echo "===== YA ESTA INSTALADO CURL ======"
 else
     echo "===== INSTALANDO CURL ======"
     sudo apt install curl
@@ -90,6 +90,8 @@ echo ===== HABILITANDO APACHE ======
 sudo systemctl enable apache2
 echo ===== STATUS APACHE ======
 sudo systemctl status apache2 | grep Active
+#renombramos para que tome nuestro index
+mv /var/www/html/index.html /var/www/html/index.html.bkp
 
 
 #PHP
@@ -120,13 +122,13 @@ sudo curl --version
 
 ############# CONFIGURANDO BD #####################
 echo "===== CREANDO DB ========"
-$ mysql
-MariaDB > CREATE DATABASE ecomdb;
-MariaDB > CREATE USER 'ecomuser'@'localhost' IDENTIFIED BY 'ecompassword';
-MariaDB > GRANT ALL PRIVILEGES ON *.* TO 'ecomuser'@'localhost';
-MariaDB > FLUSH PRIVILEGES;
+mysql -e "
+CREATE DATABASE ecomdb;
+CREATE USER 'ecomuser'@'localhost' IDENTIFIED BY 'ecompassword';
+GRANT ALL PRIVILEGES ON *.* TO 'ecomuser'@'localhost';
+FLUSH PRIVILEGES;"
 
-echo "===== CAGREGANDO DATOS A LA DB ========"
+echo "===== AGREGANDO DATOS A LA DB ========"
 cat > db-load-script.sql <<-EOF
 USE ecomdb;
 CREATE TABLE products (id mediumint(8) unsigned NOT NULL auto_increment,Name varchar(255) default NULL,Price varchar(255) default NULL, ImageUrl varchar(255) default NULL,PRIMARY KEY (id)) AUTO_INCREMENT=1;
@@ -148,25 +150,23 @@ if [ -d "$REPO" ] ;
 then
   echo "la carpeta $REPO existe"
 else
-  git clone -b lamp-app-ecommerce https://github.com/roxsross/The-DevOps-Journey-101.git
-
+  git clone https://github.com/roxsross/The-DevOps-Journey-101.git
+fi
 
 echo "===== MOVIENDO ARCHIVOS A CARPETA APACHE /var/www/html/ ======"
 cp -r The-DevOps-Journey-101/CLASE-02/lamp-app-ecommerce/* /var/www/html/
-sudo sed -i 's/172.20.1.101/localhost/g' /var/www/html/index.php
-
-echo "===== TESTEAR EXISTENCIA DEL CODIGO ======"
 
 
 
-echo "===== AJUSTAR CONFIG PHP ======"
-#################################################################
+################ UPDATE INDEX PHP ###############################
+echo "===== UPDATE INDEX PHP ======"
+sed -i 's/172.20.1.101/localhost/g' /var/www/html/index.php
 
 
 
 ################### REINICIANDO APACHE ###########################
 echo "===== REINICIANDO APACHE ======"
-sudo service apache2 reload
+systemctl reload apache2
 #################################################################
 
 #################################################################
